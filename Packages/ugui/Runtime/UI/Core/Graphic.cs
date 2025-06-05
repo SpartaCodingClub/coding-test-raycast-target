@@ -155,51 +155,17 @@ namespace UnityEngine.UI
         /// </example>
         public virtual Color color { get { return m_Color; } set { if (SetPropertyUtility.SetColor(ref m_Color, value)) SetVerticesDirty(); } }
 
-        [SerializeField] private bool m_RaycastTarget = true;
-
-        private bool m_RaycastTargetCache = true;
-
-        /// <summary>
-        /// Should this graphic be considered a target for raycasting?
-        /// </summary>
-        public virtual bool raycastTarget
+        private UICollider m_UICollider;
+        public UICollider UICollider
         {
             get
             {
-                return m_RaycastTarget;
-            }
-            set
-            {
-                if (value != m_RaycastTarget)
+                if (m_UICollider == null)
                 {
-                    if (m_RaycastTarget)
-                        GraphicRegistry.UnregisterRaycastGraphicForCanvas(canvas, this);
-
-                    m_RaycastTarget = value;
-
-                    if (m_RaycastTarget && isActiveAndEnabled)
-                        GraphicRegistry.RegisterRaycastGraphicForCanvas(canvas, this);
+                    m_UICollider = GetComponent<UICollider>();
                 }
-                m_RaycastTargetCache = value;
-            }
-        }
 
-        [SerializeField]
-        private Vector4 m_RaycastPadding = new Vector4();
-
-        /// <summary>
-        /// Padding to be applied to the masking
-        /// X = Left
-        /// Y = Bottom
-        /// Z = Right
-        /// W = Top
-        /// </summary>
-        public Vector4 raycastPadding
-        {
-            get { return m_RaycastPadding; }
-            set
-            {
-                m_RaycastPadding = value;
+                return m_UICollider;
             }
         }
 
@@ -264,7 +230,6 @@ namespace UnityEngine.UI
             }
 
             SetVerticesDirty();
-            SetRaycastDirty();
         }
 
         /// <summary>
@@ -318,19 +283,6 @@ namespace UnityEngine.UI
 
             if (m_OnDirtyMaterialCallback != null)
                 m_OnDirtyMaterialCallback();
-        }
-
-        public void SetRaycastDirty()
-        {
-            if (m_RaycastTargetCache != m_RaycastTarget)
-            {
-                if (m_RaycastTarget && isActiveAndEnabled)
-                    GraphicRegistry.RegisterRaycastGraphicForCanvas(canvas, this);
-
-                else if (!m_RaycastTarget)
-                    GraphicRegistry.UnregisterRaycastGraphicForCanvas(canvas, this);
-            }
-            m_RaycastTargetCache = m_RaycastTarget;
         }
 
         protected override void OnRectTransformDimensionsChange()
