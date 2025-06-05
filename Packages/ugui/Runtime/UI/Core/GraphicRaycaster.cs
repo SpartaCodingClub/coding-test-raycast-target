@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
@@ -84,12 +83,12 @@ namespace UnityEngine.UI
         /// <summary>
         /// Whether Graphics facing away from the raycaster are checked for raycasts.
         /// </summary>
-        public bool ignoreReversedGraphics { get {return m_IgnoreReversedGraphics; } set { m_IgnoreReversedGraphics = value; } }
+        public bool ignoreReversedGraphics { get { return m_IgnoreReversedGraphics; } set { m_IgnoreReversedGraphics = value; } }
 
         /// <summary>
         /// The type of objects that are checked to determine if they block graphic raycasts.
         /// </summary>
-        public BlockingObjects blockingObjects { get {return m_BlockingObjects; } set { m_BlockingObjects = value; } }
+        public BlockingObjects blockingObjects { get { return m_BlockingObjects; } set { m_BlockingObjects = value; } }
 
         [SerializeField]
         protected LayerMask m_BlockingMask = kNoEventMaskSet;
@@ -102,7 +101,7 @@ namespace UnityEngine.UI
         private Canvas m_Canvas;
 
         protected GraphicRaycaster()
-        {}
+        { }
 
         private Canvas canvas
         {
@@ -128,8 +127,8 @@ namespace UnityEngine.UI
             if (canvas == null)
                 return;
 
-            var canvasGraphics = GraphicRegistry.GetRaycastableGraphicsForCanvas(canvas);
-            if (canvasGraphics == null || canvasGraphics.Count == 0)
+            var uiColliders = GraphicRegistry.GetUICollidersForCanvas(canvas);
+            if (uiColliders == null || uiColliders.Count == 0)
                 return;
 
             int displayIndex;
@@ -143,7 +142,7 @@ namespace UnityEngine.UI
             Vector3 eventPosition = MultipleDisplayUtilities.GetRelativeMousePositionForRaycast(eventData);
 
             // Discard events that are not part of this display so the user does not interact with multiple displays at once.
-            if ((int) eventPosition.z != displayIndex)
+            if ((int)eventPosition.z != displayIndex)
                 return;
 
             // Convert to view space
@@ -221,7 +220,7 @@ namespace UnityEngine.UI
 
             m_RaycastResults.Clear();
 
-            Raycast(canvas, currentEventCamera, eventPosition, canvasGraphics, m_RaycastResults);
+            Raycast(canvas, currentEventCamera, eventPosition, uiColliders, m_RaycastResults);
 
             int totalCount = m_RaycastResults.Count;
             for (var index = 0; index < totalCount; index++)
@@ -311,13 +310,13 @@ namespace UnityEngine.UI
         /// Perform a raycast into the screen and collect all graphics underneath it.
         /// </summary>
         [NonSerialized] static readonly List<Graphic> s_SortedGraphics = new List<Graphic>();
-        private static void Raycast(Canvas canvas, Camera eventCamera, Vector2 pointerPosition, IList<Graphic> foundGraphics, List<Graphic> results)
+        private static void Raycast(Canvas canvas, Camera eventCamera, Vector2 pointerPosition, IList<UICollider> foundUIColliders, List<Graphic> results)
         {
             // Necessary for the event system
-            int totalCount = foundGraphics.Count;
+            int totalCount = foundUIColliders.Count;
             for (int i = 0; i < totalCount; ++i)
             {
-                Graphic graphic = foundGraphics[i];
+                Graphic graphic = foundUIColliders[i].Graphic;
 
                 // -1 means it hasn't been processed by the canvas, which means it isn't actually drawn
                 if (!graphic.UICollider || graphic.canvasRenderer.cull || graphic.depth == -1)

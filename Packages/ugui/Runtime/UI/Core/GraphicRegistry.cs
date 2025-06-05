@@ -11,7 +11,7 @@ namespace UnityEngine.UI
         private static GraphicRegistry s_Instance;
 
         private readonly Dictionary<Canvas, IndexedSet<Graphic>> m_Graphics = new Dictionary<Canvas, IndexedSet<Graphic>>();
-        private readonly Dictionary<Canvas, IndexedSet<Graphic>> m_RaycastableGraphics = new Dictionary<Canvas, IndexedSet<Graphic>>();
+        private readonly Dictionary<Canvas, IndexedSet<UICollider>> m_UIColliders = new Dictionary<Canvas, IndexedSet<UICollider>>();
 
         protected GraphicRegistry()
         {
@@ -56,8 +56,6 @@ namespace UnityEngine.UI
             {
                 graphics.AddUnique(graphic);
 
-                RegisterRaycastGraphicForCanvas(c, graphic);
-
                 return;
             }
 
@@ -65,34 +63,32 @@ namespace UnityEngine.UI
             graphics = new IndexedSet<Graphic>();
             graphics.Add(graphic);
             instance.m_Graphics.Add(c, graphics);
-
-            RegisterRaycastGraphicForCanvas(c, graphic);
         }
 
         /// <summary>
         /// Associates a raycastable Graphic with a Canvas and stores this association in the registry.
         /// </summary>
         /// <param name="c">The canvas being associated with the Graphic.</param>
-        /// <param name="graphic">The Graphic being associated with the Canvas.</param>
-        public static void RegisterRaycastGraphicForCanvas(Canvas c, Graphic graphic)
+        /// <param name="uiCollider">The Graphic being associated with the Canvas.</param>
+        public static void RegisterUIColliderForCanvas(Canvas c, UICollider uiCollider)
         {
-            if (c == null || graphic == null || !graphic.UICollider)
+            if (c == null || uiCollider == null)
                 return;
 
-            IndexedSet<Graphic> graphics;
-            instance.m_RaycastableGraphics.TryGetValue(c, out graphics);
+            IndexedSet<UICollider> uiColliders;
+            instance.m_UIColliders.TryGetValue(c, out uiColliders);
 
-            if (graphics != null)
+            if (uiColliders != null)
             {
-                graphics.AddUnique(graphic);
+                uiColliders.AddUnique(uiCollider);
 
                 return;
             }
 
             // Dont need to AddUnique as we know its the only item in the list
-            graphics = new IndexedSet<Graphic>();
-            graphics.Add(graphic);
-            instance.m_RaycastableGraphics.Add(c, graphics);
+            uiColliders = new IndexedSet<UICollider>();
+            uiColliders.Add(uiCollider);
+            instance.m_UIColliders.Add(c, uiColliders);
         }
 
         /// <summary>
@@ -112,8 +108,6 @@ namespace UnityEngine.UI
 
                 if (graphics.Capacity == 0)
                     instance.m_Graphics.Remove(c);
-
-                UnregisterRaycastGraphicForCanvas(c, graphic);
             }
         }
 
@@ -121,19 +115,19 @@ namespace UnityEngine.UI
         /// Dissociates a Graphic from a Canvas, removing this association from the registry.
         /// </summary>
         /// <param name="c">The Canvas to dissociate from the Graphic.</param>
-        /// <param name="graphic">The Graphic to dissociate from the Canvas.</param>
-        public static void UnregisterRaycastGraphicForCanvas(Canvas c, Graphic graphic)
+        /// <param name="uiCollider">The Graphic to dissociate from the Canvas.</param>
+        public static void UnregisterUIColliderForCanvas(Canvas c, UICollider uiCollider)
         {
-            if (c == null || graphic == null)
+            if (c == null || uiCollider == null)
                 return;
 
-            IndexedSet<Graphic> graphics;
-            if (instance.m_RaycastableGraphics.TryGetValue(c, out graphics))
+            IndexedSet<UICollider> uiColliders;
+            if (instance.m_UIColliders.TryGetValue(c, out uiColliders))
             {
-                graphics.Remove(graphic);
+                uiColliders.Remove(uiCollider);
 
-                if (graphics.Count == 0)
-                    instance.m_RaycastableGraphics.Remove(c);
+                if (uiColliders.Count == 0)
+                    instance.m_UIColliders.Remove(c);
             }
         }
 
@@ -154,8 +148,6 @@ namespace UnityEngine.UI
 
                 if (graphics.Capacity == 0)
                     instance.m_Graphics.Remove(c);
-
-                DisableRaycastGraphicForCanvas(c, graphic);
             }
         }
 
@@ -163,48 +155,34 @@ namespace UnityEngine.UI
         /// Disables the raycast for a Graphic from a Canvas, disabling this association from the registry.
         /// </summary>
         /// <param name="c">The Canvas to dissociate from the Graphic.</param>
-        /// <param name="graphic">The Graphic to dissociate from the Canvas.</param>
-        public static void DisableRaycastGraphicForCanvas(Canvas c, Graphic graphic)
+        /// <param name="uiCollider">The Graphic to dissociate from the Canvas.</param>
+        public static void DisableUIColliderForCanvas(Canvas c, UICollider uiCollider)
         {
-            if (c == null || !graphic.UICollider)
+            if (c == null || !uiCollider)
                 return;
 
-            IndexedSet<Graphic> graphics;
-            if (instance.m_RaycastableGraphics.TryGetValue(c, out graphics))
+            IndexedSet<UICollider> uiColliders;
+            if (instance.m_UIColliders.TryGetValue(c, out uiColliders))
             {
-                graphics.DisableItem(graphic);
+                uiColliders.DisableItem(uiCollider);
 
-                if (graphics.Capacity == 0)
-                    instance.m_RaycastableGraphics.Remove(c);
+                if (uiColliders.Capacity == 0)
+                    instance.m_UIColliders.Remove(c);
             }
         }
 
-        private static readonly List<Graphic> s_EmptyList = new List<Graphic>();
-
-        /// <summary>
-        /// Retrieves the list of Graphics associated with a Canvas.
-        /// </summary>
-        /// <param name="canvas">The Canvas to search</param>
-        /// <returns>Returns a list of Graphics. Returns an empty list if no Graphics are associated with the specified Canvas.</returns>
-        public static IList<Graphic> GetGraphicsForCanvas(Canvas canvas)
-        {
-            IndexedSet<Graphic> graphics;
-            if (instance.m_Graphics.TryGetValue(canvas, out graphics))
-                return graphics;
-
-            return s_EmptyList;
-        }
+        private static readonly List<UICollider> s_EmptyList = new List<UICollider>();
 
         /// <summary>
         /// Retrieves the list of Graphics that are raycastable and associated with a Canvas.
         /// </summary>
         /// <param name="canvas">The Canvas to search</param>
         /// <returns>Returns a list of Graphics. Returns an empty list if no Graphics are associated with the specified Canvas.</returns>
-        public static IList<Graphic> GetRaycastableGraphicsForCanvas(Canvas canvas)
+        public static IList<UICollider> GetUICollidersForCanvas(Canvas canvas)
         {
-            IndexedSet<Graphic> graphics;
-            if (instance.m_RaycastableGraphics.TryGetValue(canvas, out graphics))
-                return graphics;
+            IndexedSet<UICollider> uiColliders;
+            if (instance.m_UIColliders.TryGetValue(canvas, out uiColliders))
+                return uiColliders;
 
             return s_EmptyList;
         }
