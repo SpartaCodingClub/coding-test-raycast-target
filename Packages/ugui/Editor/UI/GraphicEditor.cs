@@ -62,6 +62,8 @@ namespace UnityEditor.UI
                 return;
 
             Graphic graphic = target as Graphic;
+            if (graphic.UICollider == null)
+                return;
 
             RectTransform gui = graphic.rectTransform;
             Transform ownSpace = gui.transform;
