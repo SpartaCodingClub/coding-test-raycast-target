@@ -7,10 +7,10 @@ public class UICollider : MonoBehaviour
 {
     [SerializeField]
     private Graphic graphic;
+    public Graphic Graphic => graphic;
 
     [SerializeField]
     private UIColliderPadding padding = new();
-
     public Vector4 Padding
     {
         get { return padding.ToVector4(); }
@@ -26,22 +26,22 @@ public class UICollider : MonoBehaviour
 
     private void OnEnable()
     {
-        if (IsValid())
+        if (IsValid() == false)
         {
             return;
         }
 
-        GraphicRegistry.RegisterGraphicForCanvas(canvas, graphic);
+        GraphicRegistry.RegisterUIColliderForCanvas(canvas, this);
     }
 
     private void OnDisable()
     {
-        if (IsValid())
+        if (IsValid() == false)
         {
             return;
         }
 
-        GraphicRegistry.UnregisterGraphicForCanvas(canvas, graphic);
+        GraphicRegistry.UnregisterUIColliderForCanvas(canvas, this);
     }
 
     private bool IsValid()

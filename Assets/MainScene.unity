@@ -874,7 +874,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09f0b38891ae7bc48b3df0389c061a9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  graphic: {fileID: 1086823787}
+  graphic: {fileID: 1880510862}
   padding:
     Left: 0
     Bottom: 0
