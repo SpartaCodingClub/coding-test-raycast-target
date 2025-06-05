@@ -76,7 +76,7 @@ namespace UnityEngine.UI
         /// <param name="graphic">The Graphic being associated with the Canvas.</param>
         public static void RegisterRaycastGraphicForCanvas(Canvas c, Graphic graphic)
         {
-            if (c == null || graphic == null || !graphic.raycastTarget)
+            if (c == null || graphic == null || !graphic.UICollider)
                 return;
 
             IndexedSet<Graphic> graphics;
@@ -166,7 +166,7 @@ namespace UnityEngine.UI
         /// <param name="graphic">The Graphic to dissociate from the Canvas.</param>
         public static void DisableRaycastGraphicForCanvas(Canvas c, Graphic graphic)
         {
-            if (c == null || !graphic.raycastTarget)
+            if (c == null || !graphic.UICollider)
                 return;
 
             IndexedSet<Graphic> graphics;

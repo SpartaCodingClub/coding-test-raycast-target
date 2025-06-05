@@ -1925,7 +1925,6 @@ namespace UnityEngine.UI
         {
             SetMaterialDirty();
             SetVerticesDirty();
-            SetRaycastDirty();
         }
 
 #if UNITY_EDITOR
